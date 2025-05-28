@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  font-family: Outfit;
+}
+
 ::-webkit-scrollbar {
   @apply hidden;
 }

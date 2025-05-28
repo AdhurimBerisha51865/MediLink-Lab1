@@ -12,21 +12,37 @@ const Navbar = () => {
     <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
       <img className="w-44 cursor-pointer" src={assets.logo} alt="" />
       <ul className="hidden md:flex items-start gap-5 font-medium">
-        <NavLink to="/">
-          <li className="py-1">Home</li>
-          {/* <hr className="border-none outline-none h-0.5 bg-#5f6FFF w-3/5 m-auto" /> */}
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? "py-1 border-b-3 border-gray-500" : "py-1"
+          }
+        >
+          Home
         </NavLink>
-        <NavLink to="/doctors">
-          <li className="py-1">All Doctors</li>
-          {/* <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto" /> */}
+        <NavLink
+          to="/doctors"
+          className={({ isActive }) =>
+            isActive ? "py-1 border-b-3 border-gray-500" : "py-1"
+          }
+        >
+          All Doctors
         </NavLink>
-        <NavLink to="/about">
-          <li className="py-1">About</li>
-          {/* <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto" /> */}
+        <NavLink
+          to="/about"
+          className={({ isActive }) =>
+            isActive ? "py-1 border-b-3 border-gray-500" : "py-1"
+          }
+        >
+          About
         </NavLink>
-        <NavLink to="/contact">
-          <li className="py-1">Contact</li>
-          {/* <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto" /> */}
+        <NavLink
+          to="/contact"
+          className={({ isActive }) =>
+            isActive ? "py-1 border-b-3 border-gray-500" : "py-1"
+          }
+        >
+          Contact
         </NavLink>
       </ul>
       <div className="flex items-center gap-4">
