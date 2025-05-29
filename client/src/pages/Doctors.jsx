@@ -9,14 +9,6 @@ const Doctors = () => {
 
   const { doctors } = useContext(AppContext);
 
-  const applyFilter = () => {
-    if (specialty) {
-      setFilterDoc(doctors.filter((doc) => doc.specialty === specialty));
-    } else {
-      setFilterDoc(doctors);
-    }
-  };
-
   const handleSpecialtyClick = (selectedSpecialty) => {
     if (specialty === selectedSpecialty) {
       navigate("/doctors");
@@ -26,7 +18,11 @@ const Doctors = () => {
   };
 
   useEffect(() => {
-    applyFilter();
+    if (specialty) {
+      setFilterDoc(doctors.filter((doc) => doc.specialty === specialty));
+    } else {
+      setFilterDoc(doctors);
+    }
   }, [doctors, specialty]);
 
   return (
