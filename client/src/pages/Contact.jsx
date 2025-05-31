@@ -18,7 +18,7 @@ const Contact = () => {
         <div className="flex flex-col justify-center items-start gap-6">
           <p className="font-semibold text-lg text-gray-600">Our Office</p>
           <p className="text-gray-500">
-            54098 Wills Station <br /> Suite 350, Washington, USA
+            Xheladin Hana <br /> Pristina, 10000, Kosovo
           </p>
           <p className="text-gray-500">
             Tel: +1-234-456-789
