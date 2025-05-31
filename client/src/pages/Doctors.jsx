@@ -31,7 +31,7 @@ const Doctors = () => {
       <p className="text-gray-600">Browse through the doctors specialist</p>
       <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
         <button
-          className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${
+          className={`py-1 px-3 border border-gray-300 rounded text-sm transition-all sm:hidden ${
             showFilter ? "bg-[#36a3ca] text-white" : ""
           }`}
           onClick={() => setShowFilter((prev) => !prev)}
