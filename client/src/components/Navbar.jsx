@@ -81,7 +81,7 @@ const Navbar = () => {
         ) : (
           <button
             onClick={() => navigate("/login")}
-            className="bg-[#5f6FFF] text-white px-8 py-3 rounded-full font-light hidden md:block"
+            className="bg-[#36a3ca] text-white px-8 py-3 rounded-full font-light hidden md:block"
           >
             Create account
           </button>
