@@ -27,9 +27,11 @@ const AdminLogin = () => {
         } else {
           toast.error(data.message);
         }
-      } else {
       }
-    } catch (error) {}
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
+    }
   };
 
   return (
