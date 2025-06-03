@@ -59,4 +59,18 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+const getProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const [[userData]] = await pool.execute(
+      `SELECT id, name, email, image, address_line1, address_line2, gender, dob, phone FROM users WHERE id = ?`,
+      [userId]
+    );
+    res.json({ success: true, userData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { registerUser, loginUser, getProfile };
