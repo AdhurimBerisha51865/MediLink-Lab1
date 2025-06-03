@@ -21,4 +21,20 @@ const changeAvailability = async (req, res) => {
   }
 };
 
-export { changeAvailability };
+const doctorList = async (req, res) => {
+  try {
+    const [doctors] = await pool.execute(
+      `SELECT id, name, image, specialty, degree, experience, about, available, fees, address_line1, address_line2 FROM doctors`
+    );
+    const doctorsWithParsedSlots = doctors.map((doc) => ({
+      ...doc,
+      slots_booked: doc.slots_booked ? JSON.parse(doc.slots_booked) : {},
+    }));
+    res.json({ success: true, doctors: doctorsWithParsedSlots });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { changeAvailability, doctorList };
