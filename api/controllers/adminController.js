@@ -116,4 +116,23 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-export { addDoctor, loginAdmin };
+const allDoctors = async (req, res) => {
+  try {
+    const [doctors] = await pool.execute(
+      `SELECT id, name, email, image, specialty, degree, experience, about, available, fees, address_line1, address_line2, slots_booked FROM doctors`
+    );
+    const doctorsWithParsedSlots = doctors.map((doc) => ({
+      ...doc,
+      slots_booked:
+        typeof doc.slots_booked === "string"
+          ? JSON.parse(doc.slots_booked)
+          : doc.slots_booked || {},
+    }));
+    res.json({ success: true, doctors: doctorsWithParsedSlots });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { addDoctor, loginAdmin, allDoctors };
