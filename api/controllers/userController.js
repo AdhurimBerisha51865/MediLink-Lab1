@@ -176,5 +176,80 @@ const bookAppointment = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment };
+const listAppointment = async (req, res) => {
+  try {
+    const userId = req.userId;
+    console.log("listAppointment: userId", userId);
+    const [appointments] = await pool.execute(
+      `SELECT a.*, d.name AS doctor_name, d.image AS doctor_image, d.specialty AS doctor_specialty, d.degree AS doctor_degree, d.experience AS doctor_experience, d.about AS doctor_about, d.fees AS doctor_fees, d.address_line1, d.address_line2, d.available AS doctor_available
+      FROM appointments a
+      JOIN doctors d ON a.doctor_id = d.id
+      WHERE a.user_id = ?
+      ORDER BY a.id DESC`,
+      [userId]
+    );
+    console.log("listAppointment: raw appointments", appointments);
+    const appointmentsWithDoc = appointments.map((a) => {
+      let slotDate = a.slot_date;
+      if (slotDate instanceof Date) {
+        slotDate = `${slotDate.getDate()}_${
+          slotDate.getMonth() + 1
+        }_${slotDate.getFullYear()}`;
+      } else if (
+        typeof slotDate === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(slotDate)
+      ) {
+        const [year, month, day] = slotDate.split("-");
+        slotDate = `${parseInt(day)}_${parseInt(month)}_${year}`;
+      }
+      let slotTime = a.slot_time;
+      if (typeof slotTime === "string" && /^\d{2}:\d{2}/.test(slotTime)) {
+        let [hours, minutes] = slotTime.split(":");
+        hours = parseInt(hours);
+        const ampm = hours >= 12 ? "PM" : "AM";
+        let displayHour = hours % 12;
+        if (displayHour === 0) displayHour = 12;
+        slotTime = `${displayHour}:${minutes} ${ampm}`;
+      }
+      return {
+        _id: a.id,
+        userId: a.user_id,
+        doctorId: a.doctor_id,
+        slotDate,
+        slotTime,
+        amount: a.amount,
+        cancelled: !!a.cancelled,
+        payment: !!a.payment,
+        isCompleted: !!a.is_completed,
+        docData: {
+          id: a.doctor_id,
+          name: a.doctor_name,
+          image: a.doctor_image,
+          specialty: a.doctor_specialty,
+          degree: a.doctor_degree,
+          experience: a.doctor_experience,
+          about: a.doctor_about,
+          fees: a.doctor_fees,
+          available: !!a.doctor_available,
+          address: {
+            line1: a.address_line1 || "",
+            line2: a.address_line2 || "",
+          },
+        },
+      };
+    });
+    res.json({ success: true, appointments: appointmentsWithDoc });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
+export {
+  registerUser,
+  loginUser,
+  getProfile,
+  updateProfile,
+  bookAppointment,
+  listAppointment,
+};
