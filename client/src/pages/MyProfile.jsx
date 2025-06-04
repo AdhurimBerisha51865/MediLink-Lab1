@@ -73,7 +73,7 @@ const MyProfile = () => {
 
         {isEdit ? (
           <input
-            className="bg-gray-50 tex-3xl font-medium max-w-60 mt-4"
+            className="bg-gray-50 text-3xl font-medium w-full mt-4"
             type="text"
             value={userData.name}
             onChange={(e) =>
