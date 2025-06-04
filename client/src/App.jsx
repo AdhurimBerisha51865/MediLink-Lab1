@@ -19,6 +19,7 @@ import AdminSidebar from "./components/AdminSidebar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Admin pages
 import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
@@ -31,18 +32,24 @@ const App = () => {
   const isAdminPage = aToken && location.pathname.startsWith("/admin");
 
   return (
-    <div>
-      {/* Top navbar */}
-      {isAdminPage ? <AdminNavbar /> : <Navbar />}
+    <div className="bg-[#f8f9fd] min-h-screen">
+      {/* Navbar */}
+      {!isAdminPage ? (
+        <div className="mx-4 sm:mx-[10%]">
+          <Navbar />
+        </div>
+      ) : (
+        <AdminNavbar />
+      )}
 
-      {/* Page layout: sidebar + content */}
-      <div className="flex bg-[#f8f9fd]">
-        {/* Sidebar for admin pages */}
+      {/* Main layout */}
+      <div className="flex">
+        {/* Admin Sidebar */}
         {isAdminPage && <AdminSidebar />}
 
+        {/* Content */}
         <div className={`flex-1 ${!isAdminPage ? "mx-4 sm:mx-[10%]" : ""}`}>
           <Routes>
-            {/* <ToastContainer /> */}
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/doctors" element={<Doctors />} />
@@ -85,7 +92,7 @@ const App = () => {
 
           <ToastContainer />
 
-          {/* Show footer only on non-admin pages */}
+          {/* Footer */}
           {!isAdminPage && <Footer />}
         </div>
       </div>
