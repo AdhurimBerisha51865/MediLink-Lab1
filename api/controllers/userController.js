@@ -114,6 +114,67 @@ const getProfile = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const bookAppointment = async (req, res) => {
+  try {
+    const { docId, slotDate, slotTime } = req.body;
+    const userId = req.userId;
+    const [[docData]] = await pool.execute(
+      `SELECT available, slots_booked, fees FROM doctors WHERE id = ?`,
+      [docId]
+    );
+    if (!docData.available) {
+      return res.json({ success: false, message: "Doctor not available" });
+    }
+    let slots_booked;
+    if (typeof docData.slots_booked === "string") {
+      slots_booked = JSON.parse(docData.slots_booked);
+    } else if (
+      typeof docData.slots_booked === "object" &&
+      docData.slots_booked !== null
+    ) {
+      slots_booked = docData.slots_booked;
+    } else {
+      slots_booked = {};
+    }
+    if (slots_booked[slotDate]) {
+      if (slots_booked[slotDate].includes(slotTime)) {
+        return res.json({ success: false, message: "Slot not available" });
+      } else {
+        slots_booked[slotDate].push(slotTime);
+      }
+    } else {
+      slots_booked[slotDate] = [slotTime];
+    }
+    let formattedSlotDate = slotDate;
+    if (/^\d{1,2}_\d{1,2}_\d{4}$/.test(slotDate)) {
+      const [day, month, year] = slotDate.split("_");
+      formattedSlotDate = `${year}-${String(month).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
+    }
+    let formattedSlotTime = slotTime;
+    if (/\d{1,2}:\d{2} (AM|PM)/i.test(slotTime)) {
+      const [time, modifier] = slotTime.split(" ");
+      let [hours, minutes] = time.split(":");
+      hours = parseInt(hours, 10);
+      if (modifier.toUpperCase() === "PM" && hours !== 12) hours += 12;
+      if (modifier.toUpperCase() === "AM" && hours === 12) hours = 0;
+      formattedSlotTime = `${String(hours).padStart(2, "0")}:${minutes}:00`;
+    }
+    await pool.execute(
+      `INSERT INTO appointments (user_id, doctor_id, slot_date, slot_time, amount) VALUES (?, ?, ?, ?, ?)`,
+      [userId, docId, formattedSlotDate, formattedSlotTime, docData.fees]
+    );
+    await pool.execute(`UPDATE doctors SET slots_booked = ? WHERE id = ?`, [
+      JSON.stringify(slots_booked),
+      docId,
+    ]);
+    res.json({ success: true, message: "Appointment Booked" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
-export { registerUser, loginUser, getProfile, updateProfile };
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment };
 
