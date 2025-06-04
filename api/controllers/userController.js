@@ -58,7 +58,49 @@ const loginUser = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
+const updateProfile = async (req, res) => {
+  try {
+    let { name, phone, address, address_line1, address_line2, dob, gender } =
+      req.body;
+    const userId = req.userId;
+    const imageFile = req.file;
+    if (address) {
+      try {
+        const parsed =
+          typeof address === "string" ? JSON.parse(address) : address;
+        address_line1 = parsed.line1 ?? address_line1 ?? "";
+        address_line2 = parsed.line2 ?? address_line2 ?? "";
+      } catch (e) {}
+    }
+    address_line1 = address_line1 ?? "";
+    address_line2 = address_line2 ?? "";
+    name = name ?? "";
+    phone = phone ?? "";
+    dob = dob ?? "";
+    gender = gender ?? "";
+    if (!name || !phone || !dob || !gender) {
+      return res.json({ success: false, message: "Data Missing" });
+    }
+    await pool.execute(
+      `UPDATE users SET name = ?, phone = ?, address_line1 = ?, address_line2 = ?, dob = ?, gender = ? WHERE id = ?`,
+      [name, phone, address_line1, address_line2, dob, gender, userId]
+    );
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+        resource_type: "image",
+      });
+      const imageURL = imageUpload.secure_url;
+      await pool.execute(`UPDATE users SET image = ? WHERE id = ?`, [
+        imageURL,
+        userId,
+      ]);
+    }
+    res.json({ success: true, message: "Profile Updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 const getProfile = async (req, res) => {
   try {
     const userId = req.userId;
@@ -73,4 +115,5 @@ const getProfile = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getProfile };
+export { registerUser, loginUser, getProfile, updateProfile };
+
