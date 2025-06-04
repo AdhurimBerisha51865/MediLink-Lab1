@@ -245,6 +245,53 @@ const listAppointment = async (req, res) => {
   }
 };
 
+const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const userId = req.userId;
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (!appointmentData || appointmentData.user_id !== userId) {
+      return res.json({ success: false, message: "Unauthorized action" });
+    }
+    await pool.execute(`UPDATE appointments SET cancelled = 1 WHERE id = ?`, [
+      appointmentId,
+    ]);
+    const { doctor_id, slot_date, slot_time } = appointmentData;
+    const [[doctorData]] = await pool.execute(
+      `SELECT slots_booked FROM doctors WHERE id = ?`,
+      [doctor_id]
+    );
+    let slots_booked;
+    if (doctorData && typeof doctorData.slots_booked === "string") {
+      slots_booked = JSON.parse(doctorData.slots_booked);
+    } else if (
+      doctorData &&
+      typeof doctorData.slots_booked === "object" &&
+      doctorData.slots_booked !== null
+    ) {
+      slots_booked = doctorData.slots_booked;
+    } else {
+      slots_booked = {};
+    }
+    if (slots_booked[slot_date]) {
+      slots_booked[slot_date] = slots_booked[slot_date].filter(
+        (e) => e !== slot_time
+      );
+    }
+    await pool.execute(`UPDATE doctors SET slots_booked = ? WHERE id = ?`, [
+      JSON.stringify(slots_booked),
+      doctor_id,
+    ]);
+    res.json({ success: true, message: "Appointment Cancelled" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -252,4 +299,5 @@ export {
   updateProfile,
   bookAppointment,
   listAppointment,
+  cancelAppointment,
 };
