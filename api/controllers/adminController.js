@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/mysql.js";
-import jwt from "jsonwebtoken";
 
 const addDoctor = async (req, res) => {
   try {
@@ -270,4 +269,11 @@ const adminDashboard = async (req, res) => {
   }
 };
 
-export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard };
+export {
+  addDoctor,
+  loginAdmin,
+  allDoctors,
+  appointmentsAdmin,
+  appointmentCancel,
+  adminDashboard,
+};
