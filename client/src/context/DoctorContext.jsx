@@ -13,6 +13,7 @@ const DoctorContextProvider = ({ children }) => {
   );
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
+  const [profileData, setProfileData] = useState(false);
 
   const getAppointments = async () => {
     try {
@@ -75,12 +76,30 @@ const DoctorContextProvider = ({ children }) => {
 
   const getDashData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/dashboard", {
-        headers: { token: dToken },
-      });
+      const { data } = await axios.get(
+        backendUrl + "/api/doctor/dashboard",
+        {}
+      );
       if (data.success) {
         setDashData(data.dashData);
         console.log(data.dashData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getProfileData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/doctor/profile", {
+        headers: { token: dToken },
+      });
+      if (data.success) {
+        setProfileData(data.profileData);
+        console.log(data.profileData);
       } else {
         toast.error(data.message);
       }
@@ -102,6 +121,9 @@ const DoctorContextProvider = ({ children }) => {
     dashData,
     setDashData,
     getDashData,
+    profileData,
+    setProfileData,
+    getProfileData,
   };
 
   return (

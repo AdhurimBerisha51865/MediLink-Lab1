@@ -208,6 +208,35 @@ const doctorDashboard = async (req, res) => {
   }
 };
 
+const doctorProfile = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const [[profileData]] = await pool.execute(
+      `SELECT id, name, email, image, specialty, degree, experience, about, available, fees, address_line1, address_line2 FROM doctors WHERE id = ?`,
+      [docId]
+    );
+    res.json({ success: true, profileData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const updateDoctorProfile = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const { fees, address_line1, address_line2, available } = req.body;
+    await pool.execute(
+      `UPDATE doctors SET fees = ?, address_line1 = ?, address_line2 = ?, available = ? WHERE id = ?`,
+      [fees, address_line1, address_line2, available, docId]
+    );
+    res.json({ success: true, message: "Profile Updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   changeAvailability,
   doctorList,
@@ -216,4 +245,6 @@ export {
   appointmentComplete,
   appointmentCancel,
   doctorDashboard,
+  doctorProfile,
+  updateDoctorProfile,
 };
