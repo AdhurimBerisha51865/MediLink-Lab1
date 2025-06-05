@@ -154,6 +154,60 @@ const appointmentCancel = async (req, res) => {
   }
 };
 
+const doctorDashboard = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const [appointments] = await pool.execute(
+      `SELECT 
+        a.id, a.user_id, a.doctor_id, a.slot_date, a.slot_time, a.amount, 
+        a.cancelled, a.payment, a.is_completed,
+        u.id AS user_real_id, u.name AS user_name, u.image AS user_image, u.dob AS user_dob, u.gender AS user_gender, u.phone AS user_phone
+      FROM appointments a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.doctor_id = ?
+      ORDER BY a.slot_date DESC, a.slot_time DESC`,
+      [docId]
+    );
+    let earnings = 0;
+    let patients = new Set();
+    appointments.forEach((item) => {
+      if (item.is_completed || item.payment) {
+        earnings += Number(item.amount);
+      }
+      patients.add(item.user_id);
+    });
+    const latestAppointments = appointments.slice(0, 10).map((a) => ({
+      _id: a.id,
+      userId: a.user_id,
+      doctorId: a.doctor_id,
+      slotDate: a.slot_date,
+      slotTime: a.slot_time,
+      amount: a.amount,
+      cancelled: !!a.cancelled,
+      payment: !!a.payment,
+      isCompleted: !!a.is_completed,
+      userData: {
+        id: a.user_real_id,
+        name: a.user_name || "Unknown Patient",
+        image: a.user_image || "",
+        dob: a.user_dob || "",
+        gender: a.user_gender || "",
+        phone: a.user_phone || "",
+      },
+    }));
+    const dashData = {
+      earnings,
+      appointments: appointments.length,
+      patients: patients.size,
+      latestAppointments,
+    };
+    res.json({ success: true, dashData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   changeAvailability,
   doctorList,
@@ -161,4 +215,5 @@ export {
   appointmentsDoctor,
   appointmentComplete,
   appointmentCancel,
+  doctorDashboard,
 };
