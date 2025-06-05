@@ -32,6 +32,8 @@ import AddDoctor from "./pages/Admin/AddDoctor";
 import DoctorsList from "./pages/Admin/DoctorsList";
 
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
+import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
+import DoctorProfile from "./pages/Doctor/DoctorProfile";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -40,7 +42,6 @@ const App = () => {
   const { dToken } = useContext(DoctorContext);
   const location = useLocation();
 
-  // Show sidebar only if admin is logged in and on admin routes
   const isAdminPage = aToken && location.pathname.startsWith("/admin");
   const isDoctorPage = dToken && location.pathname.startsWith("/doctor");
 
@@ -56,9 +57,8 @@ const App = () => {
       {dToken && !aToken && <AdminNavbar userType="doctor" />}
 
       <div className="flex">
-        {/* Sidebar only for admin */}
-        {isAdminPage && <AdminSidebar />}
-        {/* Add doctor sidebar here if needed */}
+        {/* Sidebar for both admin and doctor */}
+        {(isAdminPage || isDoctorPage) && <AdminSidebar />}
 
         <div
           className={`flex-1 ${
@@ -100,16 +100,30 @@ const App = () => {
               }
             />
 
-            {/* Admin Dashboard - only for admins */}
+            {/* Admin Dashboard */}
             <Route
               path="/admin-dashboard"
               element={aToken ? <Dashboard /> : <Navigate to="/admin-login" />}
             />
 
-            {/* Doctor Dashboard - only for doctors */}
+            {/* Doctor Dashboard */}
             <Route
               path="/doctor-dashboard"
-              element={dToken ? <DoctorDashboard /> : <Navigate to="/login" />}
+              element={
+                dToken ? <DoctorDashboard /> : <Navigate to="/admin-login" />
+              }
+            />
+            <Route
+              path="/doctor/doctor-appointments"
+              element={
+                dToken ? <DoctorAppointments /> : <Navigate to="/admin-login" />
+              }
+            />
+            <Route
+              path="/doctor/doctor-profile"
+              element={
+                dToken ? <DoctorProfile /> : <Navigate to="/admin-login" />
+              }
             />
 
             {/* Admin-specific routes */}
@@ -133,7 +147,7 @@ const App = () => {
 
           <ToastContainer />
 
-          {/* Show footer only if NOT on admin or doctor pages */}
+          {/* Footer */}
           {!isAdminPage && !isDoctorPage && <Footer />}
         </div>
       </div>
