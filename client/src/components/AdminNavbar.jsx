@@ -1,17 +1,24 @@
 import React, { useContext } from "react";
 import { AdminContext } from "../context/AdminContext";
+import { DoctorContext } from "../context/DoctorContext";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
-  const { aToken, setAToken } = useContext(AdminContext);
+const AdminNavbar = ({ userType }) => {
+  const { setAToken } = useContext(AdminContext);
+  const { setDToken } = useContext(DoctorContext);
 
   const navigate = useNavigate();
 
   const logout = () => {
     navigate("/");
-    aToken && setAToken("");
-    aToken && localStorage.removeItem("aToken");
+    if (userType === "admin") {
+      setAToken("");
+      localStorage.removeItem("aToken");
+    } else if (userType === "doctor") {
+      setDToken("");
+      localStorage.removeItem("dToken");
+    }
   };
 
   return (
@@ -20,10 +27,10 @@ const Navbar = () => {
         <img
           className="w-36 sm:w-40 cursor-pointer"
           src={assets.admin_logo}
-          alt=""
+          alt="Admin Logo"
         />
         <p className="border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600">
-          {aToken ? "Admin" : "Doctor"}
+          {userType === "admin" ? "Admin" : "Doctor"}
         </p>
       </div>
       <button
@@ -36,4 +43,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default AdminNavbar;

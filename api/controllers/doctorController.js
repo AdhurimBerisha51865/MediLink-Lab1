@@ -1,4 +1,6 @@
 import { pool } from "../config/mysql.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const changeAvailability = async (req, res) => {
   try {
@@ -37,4 +39,27 @@ const doctorList = async (req, res) => {
   }
 };
 
-export { changeAvailability, doctorList };
+const loginDoctor = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const [[doctor]] = await pool.execute(
+      `SELECT * FROM doctors WHERE email = ?`,
+      [email]
+    );
+    if (!doctor) {
+      return res.json({ success: false, message: "Invalid Credentials" });
+    }
+    const isMatch = await bcrypt.compare(password, doctor.password);
+    if (isMatch) {
+      const token = jwt.sign({ id: doctor.id }, process.env.JWT_SECRET);
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: "Invalid Credentials" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { changeAvailability, doctorList, loginDoctor };
