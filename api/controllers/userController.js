@@ -2,6 +2,8 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/mysql.js";
+import Stripe from "stripe";
+
 
 const registerUser = async (req, res) => {
   try {
@@ -291,6 +293,72 @@ const cancelAppointment = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const paymentStripe = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const userId = req.userId;
+
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+    if (appointmentData.user_id.toString() !== userId.toString()) {
+      return res.json({ success: false, message: "Unauthorized action" });
+    }
+    if (appointmentData.cancelled) {
+      return res.json({
+        success: false,
+        message: "Cannot pay for a cancelled appointment",
+      });
+    }
+    const [[doctorData]] = await pool.execute(
+      `SELECT * FROM doctors WHERE id = ?`,
+      [appointmentData.doctor_id]
+    );
+    if (!doctorData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
+    const amountToPay = doctorData.fees;
+    const paymentIntent = await stripeInstance.paymentIntents.create({
+      amount: Math.round(amountToPay * 100),
+      currency: "eur",
+      metadata: { appointmentId },
+    });
+    res.json({ success: true, clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const markPaymentSuccess = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const userId = req.userId;
+    const [[appointment]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (!appointment) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+    if (appointment.user_id.toString() !== userId.toString()) {
+      return res.json({ success: false, message: "Unauthorized action" });
+    }
+    await pool.execute(`UPDATE appointments SET payment = 1 WHERE id = ?`, [
+      appointmentId,
+    ]);
+    res.json({ success: true, message: "Payment status updated" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export {
   registerUser,
@@ -300,4 +368,6 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  paymentStripe,
+  markPaymentSuccess,
 };

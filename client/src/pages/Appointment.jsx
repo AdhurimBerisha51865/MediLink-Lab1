@@ -27,20 +27,16 @@ const Appointment = () => {
   const getAvailableSlots = async () => {
     setDocSlot([]);
 
-    // getting current date
     let today = new Date();
 
     for (let i = 0; i < 7; i++) {
-      // getting date with index
       let currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
 
-      // setting end time of the date
       let endTime = new Date();
       endTime.setDate(today.getDate() + i);
       endTime.setHours(21, 0, 0, 0);
 
-      // setting hour
       if (today.getDate() === currentDate.getDate()) {
         currentDate.setHours(
           currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
@@ -73,14 +69,12 @@ const Appointment = () => {
             : true;
 
         if (isSlotAvailable) {
-          // add slot to array
           timeSlots.push({
             dateTime: new Date(currentDate),
             time: formattedTime,
           });
         }
 
-        // increment current time by 30 min
         currentDate.setMinutes(currentDate.getMinutes() + 30);
       }
 
@@ -138,7 +132,6 @@ const Appointment = () => {
   return (
     docInfo && (
       <div>
-        {/* ------ Doctor detail ------ */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div>
             <img
@@ -148,7 +141,6 @@ const Appointment = () => {
             />
           </div>
           <div className="flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
-            {/* ----- Doc Info: name,degree,experience ----- */}
             <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
               {docInfo.name}{" "}
               <img className="w-5" src={assets.verified_icon} alt="" />
@@ -162,7 +154,6 @@ const Appointment = () => {
               </button>
             </div>
 
-            {/* ----- Doctor About ----- */}
             <div>
               <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">
                 About <img src={assets.info_icon} alt="" />
@@ -181,7 +172,6 @@ const Appointment = () => {
           </div>
         </div>
 
-        {/* ----- Booking slots ------ */}
         <div className="sm:ml-72 sm:pl-4 font-medium text-gray-700">
           <p>Booking slots</p>
           <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
@@ -226,7 +216,6 @@ const Appointment = () => {
           </button>
         </div>
 
-        {/* Listing related doctors */}
         <RelatedDoctors docId={docId} specialty={docInfo.specialty} />
       </div>
     )

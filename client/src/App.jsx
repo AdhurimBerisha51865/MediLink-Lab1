@@ -11,6 +11,7 @@ import MyProfile from "./pages/MyProfile";
 import MyAppointments from "./pages/MyAppointments";
 import Appointment from "./pages/Appointment";
 import AdminLogin from "./pages/AdminLogin";
+import StripeCardPayment from "./pages/StripeCardPayment";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -19,7 +20,11 @@ import AdminSidebar from "./components/AdminSidebar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Admin pages
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
@@ -61,6 +66,16 @@ const App = () => {
             <Route path="/my-appointments" element={<MyAppointments />} />
             <Route path="/appointment/:docId" element={<Appointment />} />
 
+            {/* Stripe Payment Route wrapped in Elements */}
+            <Route
+              path="/payment/:appointmentId"
+              element={
+                <Elements stripe={stripePromise}>
+                  <StripeCardPayment />
+                </Elements>
+              }
+            />
+
             {/* Admin Routes */}
             <Route
               path="/admin-login"
@@ -92,7 +107,7 @@ const App = () => {
 
           <ToastContainer />
 
-          {/* Footer */}
+          {/*  */}
           {!isAdminPage && <Footer />}
         </div>
       </div>
