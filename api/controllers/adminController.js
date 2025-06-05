@@ -97,6 +97,57 @@ const addDoctor = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const appointmentsAdmin = async (req, res) => {
+  try {
+    const [appointments] = await pool.execute(
+      `SELECT a.*, 
+              u.id AS user_id, u.name AS user_name, u.image AS user_image, u.dob AS user_dob, u.gender AS user_gender, u.phone AS user_phone,
+              d.id AS doctor_id, d.name AS doctor_name, d.image AS doctor_image, d.specialty AS doctor_specialty, d.degree AS doctor_degree, d.experience AS doctor_experience, d.about AS doctor_about, d.fees AS doctor_fees, d.available AS doctor_available, d.address_line1, d.address_line2
+       FROM appointments a
+       LEFT JOIN users u ON a.user_id = u.id
+       LEFT JOIN doctors d ON a.doctor_id = d.id
+       ORDER BY a.id DESC`
+    );
+    const appointmentsMapped = appointments.map((a) => ({
+      _id: a.id,
+      userId: a.user_id,
+      doctorId: a.doctor_id,
+      slotDate: a.slot_date,
+      slotTime: a.slot_time,
+      amount: a.amount,
+      cancelled: !!a.cancelled,
+      payment: !!a.payment,
+      isCompleted: !!a.is_completed,
+      userData: {
+        id: a.user_id,
+        name: a.user_name || "Unknown Patient",
+        image: a.user_image || "",
+        dob: a.user_dob || "",
+        gender: a.user_gender || "",
+        phone: a.user_phone || "",
+      },
+      docData: {
+        id: a.doctor_id,
+        name: a.doctor_name || "Unknown Doctor",
+        image: a.doctor_image || "",
+        specialty: a.doctor_specialty || "",
+        degree: a.doctor_degree || "",
+        experience: a.doctor_experience || "",
+        about: a.doctor_about || "",
+        fees: a.doctor_fees || 0,
+        available: !!a.doctor_available,
+        address: {
+          line1: a.address_line1 || "",
+          line2: a.address_line2 || "",
+        },
+      },
+    }));
+    res.json({ success: true, appointments: appointmentsMapped });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 const loginAdmin = async (req, res) => {
   try {
@@ -135,4 +186,4 @@ const allDoctors = async (req, res) => {
   }
 };
 
-export { addDoctor, loginAdmin, allDoctors };
+export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin };
