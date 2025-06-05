@@ -185,5 +185,42 @@ const allDoctors = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const appointmentCancel = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+    await pool.execute(`UPDATE appointments SET cancelled = 1 WHERE id = ?`, [
+      appointmentId,
+    ]);
+    const { doctor_id, slot_date, slot_time } = appointmentData;
+    const [[doctorData]] = await pool.execute(
+      `SELECT slots_booked FROM doctors WHERE id = ?`,
+      [doctor_id]
+    );
+    let slots_booked =
+      doctorData && doctorData.slots_booked
+        ? JSON.parse(doctorData.slots_booked)
+        : {};
+    if (slots_booked[slot_date]) {
+      slots_booked[slot_date] = slots_booked[slot_date].filter(
+        (e) => e !== slot_time
+      );
+    }
+    await pool.execute(`UPDATE doctors SET slots_booked = ? WHERE id = ?`, [
+      JSON.stringify(slots_booked),
+      doctor_id,
+    ]);
+    res.json({ success: true, message: "Appointment Cancelled" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
-export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin };
+export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel };
