@@ -62,4 +62,103 @@ const loginDoctor = async (req, res) => {
   }
 };
 
-export { changeAvailability, doctorList, loginDoctor };
+const appointmentsDoctor = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const [appointments] = await pool.execute(
+      `SELECT 
+        a.id, a.user_id, a.doctor_id, 
+        a.slot_date, a.slot_time, a.amount, 
+        a.cancelled, a.payment, a.is_completed,
+        u.id AS user_real_id, u.name AS user_name, 
+        u.image AS user_image, u.dob AS user_dob,
+        u.gender AS user_gender, u.phone AS user_phone
+      FROM appointments a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.doctor_id = ?
+      ORDER BY a.slot_date DESC, a.slot_time DESC`,
+      [docId]
+    );
+
+    const appointmentsWithUser = appointments.map((a) => {
+      return {
+        _id: a.id,
+        userId: a.user_id,
+        doctorId: a.doctor_id,
+        slotDate: a.slot_date,
+        slotTime: a.slot_time,
+        amount: a.amount,
+        cancelled: !!a.cancelled,
+        payment: !!a.payment,
+        isCompleted: !!a.is_completed,
+        userData: {
+          id: a.user_real_id,
+          name: a.user_name || "Unknown Patient",
+          image: a.user_image || "",
+          dob: a.user_dob || "",
+          gender: a.user_gender || "",
+          phone: a.user_phone || "",
+        },
+      };
+    });
+
+    res.json({ success: true, appointments: appointmentsWithUser });
+  } catch (error) {
+    console.error("Error fetching doctor appointments:", error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const appointmentComplete = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const { appointmentId } = req.body;
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (appointmentData && appointmentData.doctor_id === docId) {
+      await pool.execute(
+        `UPDATE appointments SET is_completed = 1 WHERE id = ?`,
+        [appointmentId]
+      );
+      return res.json({ success: true, message: "Appointment Completed" });
+    } else {
+      return res.json({ success: false, message: "Mark Failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const appointmentCancel = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+    const { appointmentId } = req.body;
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (appointmentData && appointmentData.doctor_id === docId) {
+      await pool.execute(`UPDATE appointments SET cancelled = 1 WHERE id = ?`, [
+        appointmentId,
+      ]);
+      return res.json({ success: true, message: "Appointment Canceled" });
+    } else {
+      return res.json({ success: false, message: "Cancellation Failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export {
+  changeAvailability,
+  doctorList,
+  loginDoctor,
+  appointmentsDoctor,
+  appointmentComplete,
+  appointmentCancel,
+};
