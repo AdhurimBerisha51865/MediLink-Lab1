@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/mysql.js";
+import jwt from "jsonwebtoken";
 
 const addDoctor = async (req, res) => {
   try {
@@ -222,5 +223,51 @@ const appointmentCancel = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+const adminDashboard = async (req, res) => {
+  try {
+    const [[{ doctors }]] = await pool.execute(
+      `SELECT COUNT(*) as doctors FROM doctors`
+    );
+    const [[{ patients }]] = await pool.execute(
+      `SELECT COUNT(*) as patients FROM users`
+    );
+    const [[{ appointments }]] = await pool.execute(
+      `SELECT COUNT(*) as appointments FROM appointments`
+    );
+    const [latestAppointmentsRaw] = await pool.execute(
+      `SELECT a.*, d.name AS doctor_name, d.image AS doctor_image
+      FROM appointments a
+      JOIN doctors d ON a.doctor_id = d.id
+      ORDER BY a.id DESC LIMIT 10`
+    );
+    const latestAppointments = latestAppointmentsRaw.map((a) => ({
+      _id: a.id,
+      userId: a.user_id,
+      doctorId: a.doctor_id,
+      slotDate: a.slot_date,
+      slotTime: a.slot_time,
+      amount: a.amount,
+      cancelled: !!a.cancelled,
+      payment: !!a.payment,
+      isCompleted: !!a.is_completed,
+      docData: {
+        id: a.doctor_id,
+        name: a.doctor_name,
+        image: a.doctor_image,
+      },
+    }));
 
-export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel };
+    const dashData = {
+      doctors,
+      appointments,
+      patients,
+      latestAppointments,
+    };
+    res.json({ success: true, dashData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard };
