@@ -81,6 +81,30 @@ const DiagnosisContextProvider = ({ children }) => {
     }
   };
 
+  const deleteDiagnosis = async (id) => {
+    try {
+      const { data } = await axios.delete(
+        backendUrl + `/api/diagnosis/delete-diagnosis/${id}`,
+        {
+          headers: {
+            token: dToken,
+          },
+        }
+      );
+
+      if (data.success) {
+        toast.success(data.message || "Diagnosis deleted");
+        // Refresh the list
+        getDiagnoses();
+      } else {
+        toast.error(data.message || "Failed to delete diagnosis");
+      }
+    } catch (error) {
+      console.error("Delete diagnosis error:", error);
+      toast.error("Error deleting diagnosis");
+    }
+  };
+
   const value = {
     dToken,
     setDToken,
@@ -88,6 +112,7 @@ const DiagnosisContextProvider = ({ children }) => {
     loading,
     createDiagnosis,
     getDiagnoses,
+    deleteDiagnosis,
     diagnosisList,
   };
 

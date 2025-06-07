@@ -159,4 +159,41 @@ async function getDiagnoses(req, res) {
   }
 }
 
-export { createDiagnosis, getDiagnoses };
+async function deleteDiagnosis(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Diagnosis ID is required",
+      });
+    }
+    const [check] = await pool.execute(`SELECT * FROM diagnosis WHERE id = ?`, [
+      id,
+    ]);
+    if (check.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Diagnosis not found",
+      });
+    }
+    await pool.execute(`DELETE FROM medications WHERE diagnosis_id = ?`, [id]);
+    await pool.execute(`DELETE FROM future_checkups WHERE diagnosis_id = ?`, [
+      id,
+    ]);
+    await pool.execute(`DELETE FROM diagnosis WHERE id = ?`, [id]);
+    return res.status(200).json({
+      success: true,
+      message: "Diagnosis deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting diagnosis:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete diagnosis",
+      error: error.message,
+    });
+  }
+}
+
+export { createDiagnosis, getDiagnoses, deleteDiagnosis };
