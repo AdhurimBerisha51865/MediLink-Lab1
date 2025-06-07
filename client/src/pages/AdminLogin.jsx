@@ -26,11 +26,11 @@ const AdminLogin = () => {
         if (data.success) {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
-          navigate("/admin-dashboard"); // Redirect admin to dashboard
+          navigate("/admin-dashboard"); // ✅ Admin dashboard
         } else {
           toast.error(data.message);
         }
-      } else {
+      } else if (state === "Doctor") {
         const { data } = await axios.post(backendUrl + "/api/doctor/login", {
           email,
           password,
@@ -38,7 +38,7 @@ const AdminLogin = () => {
         if (data.success) {
           localStorage.setItem("dToken", data.token);
           setDToken(data.token);
-          navigate("/admin-dashboard"); // Redirect doctor to dashboard
+          navigate("/doctor-dashboard"); // ✅ Doctor dashboard
         } else {
           toast.error(data.message);
         }

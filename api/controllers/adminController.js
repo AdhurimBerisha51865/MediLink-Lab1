@@ -269,6 +269,27 @@ const adminDashboard = async (req, res) => {
   }
 };
 
+const appointmentCompleteAdmin = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const [[appointmentData]] = await pool.execute(
+      `SELECT * FROM appointments WHERE id = ?`,
+      [appointmentId]
+    );
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+    await pool.execute(
+      `UPDATE appointments SET is_completed = 1 WHERE id = ?`,
+      [appointmentId]
+    );
+    res.json({ success: true, message: "Appointment Completed" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   addDoctor,
   loginAdmin,
@@ -276,4 +297,5 @@ export {
   appointmentsAdmin,
   appointmentCancel,
   adminDashboard,
+  appointmentCompleteAdmin,
 };
