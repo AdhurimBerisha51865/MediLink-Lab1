@@ -33,8 +33,16 @@ const TotalDiagnosis = () => {
           >
             <p className="max-sm:hidden">{index + 1}</p>
             <div className="flex items-center gap-2">
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.patient_name}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              )}
               <p>{item.patient_name}</p>
             </div>
+
             <p>{item.diagnosis_title}</p>
             <p>{new Date(item.diagnosis_date).toLocaleDateString()}</p>
             <p className="max-sm:hidden">

@@ -38,15 +38,12 @@ const DiagnosisContextProvider = ({ children }) => {
       console.error("Diagnosis creation error:", error);
 
       if (error.response) {
-        // Server responded with a status code that falls out of 2xx range
         toast.error(
           error.response.data.message || "Failed to create diagnosis"
         );
       } else if (error.request) {
-        // Request was made but no response received
         toast.error("No response from server. Please try again.");
       } else {
-        // Something happened in setting up the request
         toast.error("Error setting up request. Please try again.");
       }
 
@@ -94,7 +91,6 @@ const DiagnosisContextProvider = ({ children }) => {
 
       if (data.success) {
         toast.success(data.message || "Diagnosis deleted");
-        // Refresh the list
         getDiagnoses();
       } else {
         toast.error(data.message || "Failed to delete diagnosis");
