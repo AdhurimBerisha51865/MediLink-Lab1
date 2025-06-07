@@ -3,6 +3,7 @@ import { useContext } from "react";
 
 import { AdminContext } from "./context/AdminContext";
 import { DoctorContext } from "./context/DoctorContext";
+import { AppContext } from "./context/AppContext";
 
 import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
@@ -40,29 +41,45 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const App = () => {
   const { aToken } = useContext(AdminContext);
   const { dToken } = useContext(DoctorContext);
+  const { token: normalUserToken } = useContext(AppContext);
   const location = useLocation();
 
-  const isAdminPage = aToken && location.pathname.startsWith("/admin");
-  const isDoctorPage = dToken && location.pathname.startsWith("/doctor");
+  const isAdminLoggedIn = Boolean(aToken);
+  const isDoctorLoggedIn = Boolean(dToken);
+  const isNormalUserLoggedIn = Boolean(normalUserToken);
+
+  const isNoUserLoggedIn =
+    !isAdminLoggedIn && !isDoctorLoggedIn && !isNormalUserLoggedIn;
+
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isDoctorRoute = location.pathname.startsWith("/doctor");
+
+  const showNavbar =
+    !isAdminLoggedIn &&
+    !isDoctorLoggedIn &&
+    location.pathname !== "/admin-login";
 
   return (
     <div className="bg-[#f8f9fd] min-h-screen">
-      {/* Navbar / AdminNavbar */}
-      {!aToken && !dToken ? (
+      {showNavbar && (
         <div className="mx-4 sm:mx-[10%]">
           <Navbar />
         </div>
-      ) : null}
-      {aToken && <AdminNavbar userType="admin" />}
-      {dToken && !aToken && <AdminNavbar userType="doctor" />}
+      )}
+      {isAdminLoggedIn && <AdminNavbar userType="admin" />}
+      {isDoctorLoggedIn && !isAdminLoggedIn && (
+        <AdminNavbar userType="doctor" />
+      )}
 
       <div className="flex">
-        {/* Sidebar for both admin and doctor */}
-        {(isAdminPage || isDoctorPage) && <AdminSidebar />}
+        {(isAdminRoute && isAdminLoggedIn) ||
+        (isDoctorRoute && isDoctorLoggedIn) ? (
+          <AdminSidebar />
+        ) : null}
 
         <div
           className={`flex-1 ${
-            !isAdminPage && !isDoctorPage ? "mx-4 sm:mx-[10%]" : ""
+            !isAdminRoute && !isDoctorRoute ? "mx-4 sm:mx-[10%]" : ""
           }`}
         >
           <Routes>
@@ -90,57 +107,81 @@ const App = () => {
             <Route
               path="/admin-login"
               element={
-                aToken ? (
+                isAdminLoggedIn ? (
                   <Navigate to="/admin-dashboard" />
-                ) : dToken ? (
+                ) : isDoctorLoggedIn ? (
                   <Navigate to="/doctor-dashboard" />
+                ) : isNormalUserLoggedIn ? (
+                  <Navigate to="/" />
                 ) : (
                   <AdminLogin />
                 )
               }
             />
 
-            {/* Admin Dashboard */}
+            {/* Admin Dashboard routes */}
             <Route
               path="/admin-dashboard"
-              element={aToken ? <Dashboard /> : <Navigate to="/admin-login" />}
+              element={
+                isAdminLoggedIn ? <Dashboard /> : <Navigate to="/admin-login" />
+              }
+            />
+            <Route
+              path="/admin/all-appointments"
+              element={
+                isAdminLoggedIn ? (
+                  <AllAppointments />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/add-doctor"
+              element={
+                isAdminLoggedIn ? <AddDoctor /> : <Navigate to="/admin-login" />
+              }
+            />
+            <Route
+              path="/admin/doctor-list"
+              element={
+                isAdminLoggedIn ? (
+                  <DoctorsList />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
+              }
             />
 
-            {/* Doctor Dashboard */}
+            {/* Doctor Dashboard routes */}
             <Route
               path="/doctor-dashboard"
               element={
-                dToken ? <DoctorDashboard /> : <Navigate to="/admin-login" />
+                isDoctorLoggedIn ? (
+                  <DoctorDashboard />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
               }
             />
             <Route
               path="/doctor/doctor-appointments"
               element={
-                dToken ? <DoctorAppointments /> : <Navigate to="/admin-login" />
+                isDoctorLoggedIn ? (
+                  <DoctorAppointments />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
               }
             />
             <Route
               path="/doctor/doctor-profile"
               element={
-                dToken ? <DoctorProfile /> : <Navigate to="/admin-login" />
-              }
-            />
-
-            {/* Admin-specific routes */}
-            <Route
-              path="/admin/all-appointments"
-              element={
-                aToken ? <AllAppointments /> : <Navigate to="/admin-login" />
-              }
-            />
-            <Route
-              path="/admin/add-doctor"
-              element={aToken ? <AddDoctor /> : <Navigate to="/admin-login" />}
-            />
-            <Route
-              path="/admin/doctor-list"
-              element={
-                aToken ? <DoctorsList /> : <Navigate to="/admin-login" />
+                isDoctorLoggedIn ? (
+                  <DoctorProfile />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
               }
             />
           </Routes>
@@ -148,7 +189,9 @@ const App = () => {
           <ToastContainer />
 
           {/* Footer */}
-          {!isAdminPage && !isDoctorPage && <Footer />}
+          {!isAdminRoute &&
+            !isDoctorRoute &&
+            location.pathname !== "/admin-login" && <Footer />}
         </div>
       </div>
     </div>
