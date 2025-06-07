@@ -5,11 +5,15 @@ import { assets } from "../assets/assets2";
 import RelatedDoctors from "../components/RelatedDoctors";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { DoctorContext } from "../context/DoctorContext";
+import { AdminContext } from "../context/AdminContext";
 
 const Appointment = () => {
   const { docId } = useParams();
   const { doctors, currencySymbol, backendUrl, token, getDoctorsData } =
     useContext(AppContext);
+  const { dToken } = useContext(DoctorContext);
+  const { aToken } = useContext(AdminContext);
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const navigate = useNavigate();
@@ -208,12 +212,14 @@ const Appointment = () => {
                 </p>
               ))}
           </div>
-          <button
-            onClick={bookAppointment}
-            className="bg-[#36a3ca] text-white text-sm font-light px-14 py-3 rounded-full my-6"
-          >
-            Book an appointment
-          </button>
+          {token && !dToken && !aToken && (
+            <button
+              onClick={bookAppointment}
+              className="bg-[#36a3ca] text-white text-sm font-light px-14 py-3 rounded-full my-6"
+            >
+              Book an appointment
+            </button>
+          )}
         </div>
 
         <RelatedDoctors docId={docId} specialty={docInfo.specialty} />
