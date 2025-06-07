@@ -120,7 +120,7 @@ const MyAppointments = () => {
             </div>
 
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && (
+              {!item.cancelled && !item.isCompleted && (
                 <>
                   {item.payment ? (
                     <button className="sm:min-w-48 border border-green-500 rounded text-green-500 cursor-default">
@@ -143,9 +143,15 @@ const MyAppointments = () => {
                 </>
               )}
 
-              {item.cancelled && (
+              {item.cancelled && !item.isCompleted && (
                 <button className="sm:min-w-48 border border-red-500 rounded text-red-500 cursor-default">
                   Appointment Cancelled
+                </button>
+              )}
+
+              {item.isCompleted && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-default">
+                  Completed
                 </button>
               )}
             </div>

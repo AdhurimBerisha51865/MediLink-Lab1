@@ -76,10 +76,9 @@ const DoctorContextProvider = ({ children }) => {
 
   const getDashData = async () => {
     try {
-      const { data } = await axios.get(
-        backendUrl + "/api/doctor/dashboard",
-        {}
-      );
+      const { data } = await axios.get(backendUrl + "/api/doctor/dashboard", {
+        headers: { token: dToken },
+      });
       if (data.success) {
         setDashData(data.dashData);
         console.log(data.dashData);
