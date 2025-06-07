@@ -7,17 +7,20 @@ import AppContextProvider from "./context/AppContext.jsx";
 import AdminAppContextProvider from "./context/AdminAppContext.jsx";
 import DoctorContextProvider from "./context/DoctorContext.jsx";
 import AdminContextProvider from "./context/AdminContext.jsx";
+import DiagnosisContextProvider from "./context/diagnosisContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AppContextProvider>
-      <DoctorContextProvider>
-        <AdminContextProvider>
-          <AdminAppContextProvider>
-            <App />
-          </AdminAppContextProvider>
-        </AdminContextProvider>
-      </DoctorContextProvider>
+      <AdminContextProvider>
+        <DoctorContextProvider>
+          <DiagnosisContextProvider>
+            <AdminAppContextProvider>
+              <App />
+            </AdminAppContextProvider>
+          </DiagnosisContextProvider>
+        </DoctorContextProvider>
+      </AdminContextProvider>
     </AppContextProvider>
   </BrowserRouter>
 );

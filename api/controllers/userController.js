@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { pool } from "../config/mysql.js";
 import Stripe from "stripe";
 
-
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -360,6 +359,18 @@ const markPaymentSuccess = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const [users] = await pool.execute(
+      `SELECT id, name, email, image, address_line1, address_line2, gender, dob, phone FROM users`
+    );
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -370,4 +381,5 @@ export {
   cancelAppointment,
   paymentStripe,
   markPaymentSuccess,
+  getAllUsers,
 };

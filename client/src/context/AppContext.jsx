@@ -7,7 +7,9 @@ export const AppContext = createContext();
 const AppContextProvider = ({ children }) => {
   const currencySymbol = "€";
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const [doctors, setDoctors] = useState([]);
+  const [users, setUsers] = useState([]);
   const [token, setToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : false
   );
@@ -18,6 +20,22 @@ const AppContextProvider = ({ children }) => {
       const { data } = await axios.get(backendUrl + "/api/doctor/list");
       if (data.success) {
         setDoctors(data.doctors);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getUsersData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/user/all", {
+        headers: { token },
+      });
+      if (data.success) {
+        setUsers(data.users);
       } else {
         toast.error(data.message);
       }
@@ -46,6 +64,8 @@ const AppContextProvider = ({ children }) => {
   const value = {
     doctors,
     getDoctorsData,
+    users,
+    getUsersData,
     currencySymbol,
     token,
     setToken,
@@ -62,8 +82,10 @@ const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       loadUserProfileData();
+      getUsersData();
     } else {
       setUserData(false);
+      setUsers([]);
     }
   }, [token]);
 
