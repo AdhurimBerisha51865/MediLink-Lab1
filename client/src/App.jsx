@@ -34,6 +34,7 @@ import DoctorsList from "./pages/Admin/DoctorsList";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./pages/Doctor/DoctorProfile";
+import Medications from "./pages/Doctor/Diagnosis";
 
 const App = () => {
   const location = useLocation();
@@ -174,6 +175,17 @@ const App = () => {
               element={
                 isDoctorLoggedIn ? (
                   <DoctorProfile />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
+              }
+            />
+
+            <Route
+              path="/doctor/medications"
+              element={
+                isDoctorLoggedIn ? (
+                  <Medications />
                 ) : (
                   <Navigate to="/admin-login" />
                 )
