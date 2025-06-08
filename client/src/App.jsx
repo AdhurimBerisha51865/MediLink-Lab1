@@ -6,6 +6,8 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 import Navbar from "./components/Navbar";
 import AdminNavbar from "./components/AdminNavbar";
@@ -24,6 +26,7 @@ import Login from "./pages/Login";
 import MyProfile from "./pages/MyProfile";
 import MyAppointments from "./pages/MyAppointments";
 import Appointment from "./pages/Appointment";
+import StripeCardPayment from "./pages/StripeCardPayment";
 
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/Admin/Dashboard";
@@ -37,6 +40,8 @@ import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
 import DoctorProfile from "./pages/Doctor/DoctorProfile";
 import AddDiagnosis from "./pages/Doctor/AddDiagnosis";
 import TotalDiagnosis from "./pages/Doctor/TotalDiagnosis";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const App = () => {
   const location = useLocation();
@@ -108,6 +113,19 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/appointment/:docId" element={<Appointment />} />
+
+            <Route
+              path="/payment/:appointmentId"
+              element={
+                isUserLoggedIn ? (
+                  <Elements stripe={stripePromise}>
+                    <StripeCardPayment />
+                  </Elements>
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
 
             <Route
               path="/admin-login"
