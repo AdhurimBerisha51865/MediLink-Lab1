@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AdminAppContext } from "../../context/AdminAppContext";
 import { assets } from "../../assets/assets";
@@ -14,11 +14,22 @@ const DoctorAppointments = () => {
   const { calculateAge, slotDateFormat, currency } =
     useContext(AdminAppContext);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [appointmentsPerPage] = useState(10);
+
   useEffect(() => {
     if (dToken) {
       getAppointments();
     }
   }, [dToken]);
+
+  const indexOfLastAppointment = currentPage * appointmentsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+  const currentAppointments = [...appointments]
+    .reverse()
+    .slice(indexOfFirstAppointment, indexOfLastAppointment);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="w-full max-w-5xl m-5">
@@ -35,12 +46,14 @@ const DoctorAppointments = () => {
           <p>Action</p>
         </div>
 
-        {appointments.reverse().map((item, index) => (
+        {currentAppointments.map((item, index) => (
           <div
             key={index}
             className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b border-gray-300 hover:bg-gray-50"
           >
-            <p className="max-sm:hidden">{index + 1}</p>
+            <p className="max-sm:hidden">
+              {indexOfFirstAppointment + index + 1}
+            </p>
             <div className="flex items-center gap-2">
               <img
                 className="w-8 rounded-full"
@@ -85,6 +98,54 @@ const DoctorAppointments = () => {
           </div>
         ))}
       </div>
+
+      {appointments.length > appointmentsPerPage && (
+        <div className="flex justify-center mt-4">
+          <nav className="inline-flex rounded-md shadow">
+            <ul className="flex items-center space-x-2">
+              {currentPage > 1 && (
+                <li>
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                  >
+                    Previous
+                  </button>
+                </li>
+              )}
+
+              {Array.from({
+                length: Math.ceil(appointments.length / appointmentsPerPage),
+              }).map((_, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => paginate(index + 1)}
+                    className={`px-3 py-1 rounded-md border ${
+                      currentPage === index + 1
+                        ? "border-blue-500 bg-blue-50 text-blue-600"
+                        : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+
+              {currentPage <
+                Math.ceil(appointments.length / appointmentsPerPage) && (
+                <li>
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                  >
+                    Next
+                  </button>
+                </li>
+              )}
+            </ul>
+          </nav>
+        </div>
+      )}
     </div>
   );
 };
