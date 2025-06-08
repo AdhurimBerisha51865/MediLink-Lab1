@@ -3,10 +3,12 @@ import { AdminContext } from "../context/AdminContext";
 import { DoctorContext } from "../context/DoctorContext";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { DiagnosisContext } from "../context/DiagnosisContext";
 
 const AdminNavbar = ({ userType }) => {
   const { setAToken } = useContext(AdminContext);
   const { setDToken } = useContext(DoctorContext);
+  const { setDiagnosisList } = useContext(DiagnosisContext);
 
   const navigate = useNavigate();
 
@@ -18,6 +20,7 @@ const AdminNavbar = ({ userType }) => {
     } else if (userType === "doctor") {
       setDToken("");
       localStorage.removeItem("dToken");
+      setDiagnosisList([]);
     }
   };
 
