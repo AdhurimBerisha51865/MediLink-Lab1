@@ -397,6 +397,27 @@ const getAllDiagnoses = async (req, res) => {
   }
 };
 
+const changeAvailability = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    const [[docData]] = await pool.execute(
+      `SELECT available FROM doctors WHERE id = ?`,
+      [docId]
+    );
+    if (!docData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
+    await pool.execute(`UPDATE doctors SET available = ? WHERE id = ?`, [
+      !docData.available,
+      docId,
+    ]);
+    res.json({ success: true, message: "Availability Changed" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   addDoctor,
   loginAdmin,
@@ -406,4 +427,5 @@ export {
   adminDashboard,
   appointmentCompleteAdmin,
   getAllDiagnoses,
+  changeAvailability,
 };
