@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { DiagnosisContext } from "../../context/diagnosisContext";
 import { assets } from "../../assets/assets";
-import { DiagnosisContext } from "../../context/DiagnosisContext";
 
 const TotalDiagnosis = () => {
   const {
@@ -13,12 +13,25 @@ const TotalDiagnosis = () => {
 
   const [editingId, setEditingId] = useState(null);
   const [medicationsEdit, setMedicationsEdit] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [diagnosesPerPage] = useState(5); // Items per page
 
   useEffect(() => {
     if (dToken) {
       getDiagnoses();
     }
   }, [dToken]);
+
+  // Get current diagnoses for pagination
+  const indexOfLastDiagnosis = currentPage * diagnosesPerPage;
+  const indexOfFirstDiagnosis = indexOfLastDiagnosis - diagnosesPerPage;
+  const currentDiagnoses = diagnosisList.slice(
+    indexOfFirstDiagnosis,
+    indexOfLastDiagnosis
+  );
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const startEdit = (diagnosis) => {
     setEditingId(diagnosis.diagnosis_id);
@@ -58,7 +71,7 @@ const TotalDiagnosis = () => {
       <p className="mb-4 text-xl font-semibold">All Diagnoses</p>
 
       <div className="flex flex-col gap-4">
-        {diagnosisList.map((item, index) => (
+        {currentDiagnoses.map((item) => (
           <div
             key={item.diagnosis_id}
             className="border border-gray-300 rounded-lg shadow-sm p-4 bg-white"
@@ -197,6 +210,53 @@ const TotalDiagnosis = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6">
+        <nav className="inline-flex rounded-md shadow">
+          <ul className="flex items-center space-x-2">
+            {currentPage > 1 && (
+              <li>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+              </li>
+            )}
+
+            {Array.from({
+              length: Math.ceil(diagnosisList.length / diagnosesPerPage),
+            }).map((_, index) => (
+              <li key={index}>
+                <button
+                  onClick={() => paginate(index + 1)}
+                  className={`px-3 py-1 rounded-md border ${
+                    currentPage === index + 1
+                      ? "border-blue-500 bg-blue-50 text-blue-600"
+                      : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+
+            {currentPage <
+              Math.ceil(diagnosisList.length / diagnosesPerPage) && (
+              <li>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </li>
+            )}
+          </ul>
+        </nav>
       </div>
     </div>
   );

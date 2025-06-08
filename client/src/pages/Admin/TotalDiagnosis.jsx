@@ -1,9 +1,10 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import { assets } from "../../assets/assets";
 
 const TotalDiagnosisAdmin = () => {
   const { aToken, diagnoses, fetchAllDiagnoses } = useContext(AdminContext);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [diagnosesPerPage] = useState(5);
 
   useEffect(() => {
     if (aToken) {
@@ -11,12 +12,21 @@ const TotalDiagnosisAdmin = () => {
     }
   }, [aToken]);
 
+  const indexOfLastDiagnosis = currentPage * diagnosesPerPage;
+  const indexOfFirstDiagnosis = indexOfLastDiagnosis - diagnosesPerPage;
+  const currentDiagnoses = diagnoses.slice(
+    indexOfFirstDiagnosis,
+    indexOfLastDiagnosis
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="w-full max-w-7xl m-5 px-4">
       <p className="mb-4 text-xl font-semibold">All Diagnoses</p>
 
       <div className="flex flex-col gap-4">
-        {diagnoses.map((diagnosis) => (
+        {currentDiagnoses.map((diagnosis) => (
           <div
             key={diagnosis.id}
             className="border border-gray-300 rounded-lg shadow-sm p-4 bg-white"
@@ -71,23 +81,53 @@ const TotalDiagnosisAdmin = () => {
                 </p>
               )}
             </div>
-
-            {diagnosis.futureCheckups &&
-              diagnosis.futureCheckups.length > 0 && (
-                <div className="mt-3">
-                  <p className="font-medium mb-1">Future Checkups:</p>
-                  {diagnosis.futureCheckups.map((checkup, i) => (
-                    <div key={i} className="text-sm text-gray-600">
-                      <p>
-                        • {new Date(checkup.date).toLocaleDateString()} -{" "}
-                        {checkup.purpose}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
           </div>
         ))}
+      </div>
+
+      <div className="flex justify-center mt-6">
+        <nav className="inline-flex rounded-md shadow">
+          <ul className="flex items-center space-x-2">
+            {currentPage > 1 && (
+              <li>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+              </li>
+            )}
+
+            {Array.from({
+              length: Math.ceil(diagnoses.length / diagnosesPerPage),
+            }).map((_, index) => (
+              <li key={index}>
+                <button
+                  onClick={() => paginate(index + 1)}
+                  className={`px-3 py-1 rounded-md border ${
+                    currentPage === index + 1
+                      ? "border-blue-500 bg-blue-50 text-blue-600"
+                      : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+
+            {currentPage < Math.ceil(diagnoses.length / diagnosesPerPage) && (
+              <li>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </li>
+            )}
+          </ul>
+        </nav>
       </div>
     </div>
   );
