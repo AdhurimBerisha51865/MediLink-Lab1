@@ -115,10 +115,16 @@ const MyProfile = () => {
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
-                      address: { ...prev.address, line1: e.target.value },
+                      address: {
+                        ...(prev.address || {}),
+                        line1: e.target.value,
+                      },
+                      address_line1: e.target.value,
                     }))
                   }
-                  value={userData.address.line1}
+                  value={
+                    userData.address?.line1 ?? userData.address_line1 ?? ""
+                  }
                 />
                 <br />
                 <input
@@ -127,17 +133,23 @@ const MyProfile = () => {
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
-                      address: { ...prev.address, line2: e.target.value },
+                      address: {
+                        ...(prev.address || {}),
+                        line2: e.target.value,
+                      },
+                      address_line2: e.target.value,
                     }))
                   }
-                  value={userData.address.line2}
+                  value={
+                    userData.address?.line2 ?? userData.address_line2 ?? ""
+                  }
                 />
               </p>
             ) : (
               <p className="text-gray-500">
-                {userData.address.line1}
+                {userData.address?.line1 ?? userData.address_line1 ?? ""}
                 <br />
-                {userData.address.line2}
+                {userData.address?.line2 ?? userData.address_line2 ?? ""}
               </p>
             )}
           </div>
@@ -180,14 +192,14 @@ const MyProfile = () => {
         <div className="mt-10">
           {isEdit ? (
             <button
-              className="border border-bg-[#36a3ca] px-8 py-2 rounded-full hover:bg-[#36a3ca] hover:text-white transition-all"
+              className="border border-bg-[#36a3ca] px-8 py-2 rounded-full hover:bg-[#36a3ca] hover:text-white transition-all  cursor-pointer"
               onClick={updateUserProfileData}
             >
               Save Information
             </button>
           ) : (
             <button
-              className="border border-bg-[#36a3ca] px-8 py-2 rounded-full hover:bg-[#36a3ca] hover:text-white transition-all"
+              className="border border-bg-[#36a3ca] px-8 py-2 rounded-full hover:bg-[#36a3ca] hover:text-white transition-all cursor-pointer"
               onClick={() => setIsEdit(true)}
             >
               Edit
