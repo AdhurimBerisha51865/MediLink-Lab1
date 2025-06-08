@@ -196,4 +196,56 @@ async function deleteDiagnosis(req, res) {
   }
 }
 
-export { createDiagnosis, getDiagnoses, deleteDiagnosis };
+async function updateDiagnosis(req, res) {
+  try {
+    const { id } = req.params;
+    const { medications = [] } = req.body;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Diagnosis ID is required",
+      });
+    }
+    const [existing] = await pool.execute(
+      `SELECT * FROM diagnosis WHERE id = ?`,
+      [id]
+    );
+    if (existing.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Diagnosis not found",
+      });
+    }
+    await pool.execute(`DELETE FROM medications WHERE diagnosis_id = ?`, [id]);
+    if (medications.length > 0) {
+      await Promise.all(
+        medications.map((med) =>
+          pool.execute(
+            `INSERT INTO medications (diagnosis_id, medication_name, dosage, duration, notes)
+             VALUES (?, ?, ?, ?, ?)`,
+            [
+              id,
+              med.medication_name,
+              med.dosage,
+              med.duration,
+              med.notes || null,
+            ]
+          )
+        )
+      );
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Medications updated successfully",
+    });
+  } catch (error) {
+    console.error("Update medications error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update medications",
+      error: error.message,
+    });
+  }
+}
+
+export { createDiagnosis, getDiagnoses, deleteDiagnosis, updateDiagnosis };
