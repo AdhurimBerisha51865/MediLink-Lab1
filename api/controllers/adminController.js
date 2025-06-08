@@ -290,6 +290,113 @@ const appointmentCompleteAdmin = async (req, res) => {
   }
 };
 
+const getAllDiagnoses = async (req, res) => {
+  try {
+    const [diagnoses] = await pool.execute(
+      `SELECT 
+        d.id AS diagnosis_id, 
+        d.diagnosis_title, 
+        d.description, 
+        d.diagnosis_date,
+        u.id AS user_id, 
+        u.name AS patient_name, 
+        u.gender AS patient_gender,
+        u.dob AS patient_dob, 
+        u.phone AS patient_phone,
+        u.image AS patient_image,
+        doc.id AS doctor_id,
+        doc.name AS doctor_name,
+        doc.email AS doctor_email,
+        doc.image AS doctor_image,
+        doc.specialty AS doctor_specialty
+       FROM diagnosis d
+       JOIN users u ON d.user_id = u.id
+       JOIN doctors doc ON d.doctor_id = doc.id
+       ORDER BY d.diagnosis_date DESC`
+    );
+
+    const diagnosisIds = diagnoses.map((d) => d.diagnosis_id);
+
+    const [medications] =
+      diagnosisIds.length > 0
+        ? await pool.execute(
+            `SELECT diagnosis_id, medication_name, dosage, duration, notes FROM medications WHERE diagnosis_id IN (${diagnosisIds
+              .map(() => "?")
+              .join(",")})`,
+            diagnosisIds
+          )
+        : [[]];
+
+    const [futureCheckups] =
+      diagnosisIds.length > 0
+        ? await pool.execute(
+            `SELECT diagnosis_id, checkup_date, purpose, notes FROM future_checkups WHERE diagnosis_id IN (${diagnosisIds
+              .map(() => "?")
+              .join(",")})`,
+            diagnosisIds
+          )
+        : [[]];
+
+    const medsMap = medications.reduce((acc, med) => {
+      if (!acc[med.diagnosis_id]) acc[med.diagnosis_id] = [];
+      acc[med.diagnosis_id].push({
+        name: med.medication_name,
+        dosage: med.dosage,
+        duration: med.duration,
+        notes: med.notes,
+      });
+      return acc;
+    }, {});
+
+    const checkupsMap = futureCheckups.reduce((acc, checkup) => {
+      if (!acc[checkup.diagnosis_id]) acc[checkup.diagnosis_id] = [];
+      acc[checkup.diagnosis_id].push({
+        date: checkup.checkup_date,
+        purpose: checkup.purpose,
+        notes: checkup.notes,
+      });
+      return acc;
+    }, {});
+
+    const enrichedDiagnoses = diagnoses.map((d) => ({
+      id: d.diagnosis_id,
+      title: d.diagnosis_title,
+      description: d.description,
+      date: d.diagnosis_date,
+      patient: {
+        id: d.user_id,
+        name: d.patient_name,
+        gender: d.patient_gender,
+        dob: d.patient_dob,
+        phone: d.patient_phone,
+        image: d.patient_image || null,
+      },
+      doctor: {
+        id: d.doctor_id,
+        name: d.doctor_name,
+        email: d.doctor_email,
+        image: d.doctor_image || null,
+        specialty: d.doctor_specialty || null,
+      },
+      medications: medsMap[d.diagnosis_id] || [],
+      futureCheckups: checkupsMap[d.diagnosis_id] || [],
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: enrichedDiagnoses.length,
+      diagnoses: enrichedDiagnoses,
+    });
+  } catch (error) {
+    console.error("Error fetching all diagnoses:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch diagnoses",
+      error: error.message,
+    });
+  }
+};
+
 export {
   addDoctor,
   loginAdmin,
@@ -298,4 +405,5 @@ export {
   appointmentCancel,
   adminDashboard,
   appointmentCompleteAdmin,
+  getAllDiagnoses,
 };

@@ -59,6 +59,22 @@ const AdminSidebar = () => {
             <img src={assets.people_icon} alt="Doctors List" />
             <p className="hidden md:block">Doctors List</p>
           </NavLink>
+
+          <NavLink
+            to="/admin/total-diagnosis"
+            className={({ isActive }) =>
+              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
+                isActive ? "bg-[#f2f3ff] border-r-4 border-gray-300" : ""
+              }`
+            }
+          >
+            <img
+              className="w-8.5 h-8 ml-[-5.5px]"
+              src={assets.total_diagnosis_icon}
+              alt="Diagnosis"
+            />
+            <p className="hidden md:block">Total Diagnosis</p>
+          </NavLink>
         </ul>
       )}
 

@@ -30,6 +30,7 @@ import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
 import DoctorsList from "./pages/Admin/DoctorsList";
+import TotalDiagnosisAdmin from "./pages/Admin/TotalDiagnosisAdmin";
 
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
@@ -145,6 +146,16 @@ const App = () => {
               element={
                 isAdminLoggedIn ? (
                   <DoctorsList />
+                ) : (
+                  <Navigate to="/admin-login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/total-diagnosis"
+              element={
+                isAdminLoggedIn ? (
+                  <TotalDiagnosisAdmin />
                 ) : (
                   <Navigate to="/admin-login" />
                 )

@@ -12,6 +12,7 @@ const AdminContextProvider = ({ children }) => {
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
+  const [diagnoses, setDiagnoses] = useState([]);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -120,6 +121,26 @@ const AdminContextProvider = ({ children }) => {
     }
   };
 
+  const fetchAllDiagnoses = async () => {
+    try {
+      const { data } = await axios.get(
+        backendUrl + "/api/admin/get-diagnosis",
+        {
+          headers: { aToken },
+        }
+      );
+      if (data.success) {
+        setDiagnoses(data.diagnoses);
+      } else {
+        toast.error(data.message);
+      }
+      return data;
+    } catch (error) {
+      toast.error(error.message);
+      throw error;
+    }
+  };
+
   const value = {
     aToken,
     setAToken,
@@ -134,6 +155,8 @@ const AdminContextProvider = ({ children }) => {
     dashData,
     getDashData,
     completeAppointment,
+    diagnoses,
+    fetchAllDiagnoses,
   };
 
   return (
