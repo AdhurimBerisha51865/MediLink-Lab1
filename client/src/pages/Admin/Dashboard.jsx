@@ -63,7 +63,7 @@ const Dashboard = () => {
         <div className="bg-white mt-10">
           <div className="flex items-center gap-2.5 px-4 py-4 rounded-t border border-gray-300">
             <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">Latest Bookings</p>
+            <p className="font-semibold">Latest Appointments</p>
           </div>
 
           <div className="pt-4 border border-t-0 border-gray-300">

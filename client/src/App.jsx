@@ -30,7 +30,7 @@ import Dashboard from "./pages/Admin/Dashboard";
 import AllAppointments from "./pages/Admin/AllAppointments";
 import AddDoctor from "./pages/Admin/AddDoctor";
 import DoctorsList from "./pages/Admin/DoctorsList";
-import TotalDiagnosisAdmin from "./pages/Admin/TotalDiagnosisAdmin";
+import TotalDiagnosisAdmin from "./pages/Admin/TotalDiagnosis";
 
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/Doctor/DoctorAppointments";
