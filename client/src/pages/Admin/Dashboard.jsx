@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { assets } from "../../assets/assets";
 import { AdminAppContext } from "../../context/AdminAppContext";
@@ -7,12 +7,23 @@ const Dashboard = () => {
   const { aToken, getDashData, cancelAppointment, dashData } =
     useContext(AdminContext);
   const { slotDateFormat } = useContext(AdminAppContext);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [appointmentsPerPage] = useState(5);
 
   useEffect(() => {
     if (aToken) {
       getDashData();
     }
   }, [aToken]);
+
+  const indexOfLastAppointment = currentPage * appointmentsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+  const currentAppointments = dashData?.latestAppointments?.slice(
+    indexOfFirstAppointment,
+    indexOfLastAppointment
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     dashData && (
@@ -49,14 +60,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-300">
+        <div className="bg-white mt-10">
+          <div className="flex items-center gap-2.5 px-4 py-4 rounded-t border border-gray-300">
             <img src={assets.list_icon} alt="" />
             <p className="font-semibold">Latest Bookings</p>
           </div>
 
           <div className="pt-4 border border-t-0 border-gray-300">
-            {dashData.latestAppointments.map((item, index) => (
+            {currentAppointments?.map((item, index) => (
               <div
                 className="flex items-center px-6 py-3 gap-3 hover:bg-gray-100"
                 key={index}
@@ -77,7 +88,7 @@ const Dashboard = () => {
                 {item.cancelled ? (
                   <p className="text-red-400 text-xs font-medium">Cancelled</p>
                 ) : item.isCompleted ? (
-                  <p className="text-green-500  text-xs font-medium">
+                  <p className="text-green-500 text-xs font-medium">
                     Completed
                   </p>
                 ) : (
@@ -91,6 +102,58 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
+
+          {dashData?.latestAppointments?.length > appointmentsPerPage && (
+            <div className="flex justify-center py-4 border border-t-0 border-gray-300">
+              <nav className="inline-flex rounded-md shadow">
+                <ul className="flex items-center space-x-2">
+                  {currentPage > 1 && (
+                    <li>
+                      <button
+                        onClick={() => paginate(currentPage - 1)}
+                        className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                      >
+                        Previous
+                      </button>
+                    </li>
+                  )}
+
+                  {Array.from({
+                    length: Math.ceil(
+                      dashData.latestAppointments.length / appointmentsPerPage
+                    ),
+                  }).map((_, index) => (
+                    <li key={index}>
+                      <button
+                        onClick={() => paginate(index + 1)}
+                        className={`px-3 py-1 rounded-md border ${
+                          currentPage === index + 1
+                            ? "border-blue-500 bg-blue-50 text-blue-600"
+                            : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    </li>
+                  ))}
+
+                  {currentPage <
+                    Math.ceil(
+                      dashData.latestAppointments.length / appointmentsPerPage
+                    ) && (
+                    <li>
+                      <button
+                        onClick={() => paginate(currentPage + 1)}
+                        className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                      >
+                        Next
+                      </button>
+                    </li>
+                  )}
+                </ul>
+              </nav>
+            </div>
+          )}
         </div>
       </div>
     )
