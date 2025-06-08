@@ -4,8 +4,14 @@ import { assets } from "../../assets/assets";
 import { AdminAppContext } from "../../context/AdminAppContext";
 
 const Dashboard = () => {
-  const { aToken, getDashData, cancelAppointment, dashData } =
-    useContext(AdminContext);
+  const {
+    aToken,
+    getDashData,
+    cancelAppointment,
+    dashData,
+    fetchAllDiagnoses,
+    diagnoses,
+  } = useContext(AdminContext);
   const { slotDateFormat } = useContext(AdminAppContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [appointmentsPerPage] = useState(5);
@@ -13,6 +19,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (aToken) {
       getDashData();
+      fetchAllDiagnoses();
     }
   }, [aToken]);
 
@@ -56,6 +63,18 @@ const Dashboard = () => {
                 {dashData.patients}
               </p>
               <p className="text-gray-400">Patients</p>
+            </div>
+          </div>
+
+          {/* New Diagnosis Card */}
+          <div className="flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-300 cursor-pointer hover:scale-105 transition-all">
+            <img className="w-14" src={assets.diagnosis_icon} alt="" />
+            {/* You'll need to add a diagnosis icon to your assets */}
+            <div>
+              <p className="text-xl font-semibold text-gray-600">
+                {diagnoses?.length || 0}
+              </p>
+              <p className="text-gray-400">Diagnoses</p>
             </div>
           </div>
         </div>
