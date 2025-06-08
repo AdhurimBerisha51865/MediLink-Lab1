@@ -1,15 +1,14 @@
-import { useState, createContext } from "react";
+import { useState, createContext, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { DoctorContext } from "./DoctorContext";
 
 export const DiagnosisContext = createContext();
 
 const DiagnosisContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [dToken, setDToken] = useState(
-    localStorage.getItem("dToken") ? localStorage.getItem("dToken") : ""
-  );
+  const { dToken } = useContext(DoctorContext);
   const [loading, setLoading] = useState(false);
   const [diagnosisList, setDiagnosisList] = useState([]);
 
@@ -38,15 +37,12 @@ const DiagnosisContextProvider = ({ children }) => {
       console.error("Diagnosis creation error:", error);
 
       if (error.response) {
-        // Server responded with a status code that falls out of 2xx range
         toast.error(
           error.response.data.message || "Failed to create diagnosis"
         );
       } else if (error.request) {
-        // Request was made but no response received
         toast.error("No response from server. Please try again.");
       } else {
-        // Something happened in setting up the request
         toast.error("Error setting up request. Please try again.");
       }
 
@@ -127,7 +123,6 @@ const DiagnosisContextProvider = ({ children }) => {
 
   const value = {
     dToken,
-    setDToken,
     backendUrl,
     loading,
     createDiagnosis,
