@@ -12,6 +12,7 @@ const StripeCardPayment = () => {
   const elements = useElements();
   const navigate = useNavigate();
   const [clientSecret, setClientSecret] = useState("");
+  const [cardholderName, setCardholderName] = useState("");
 
   const fetchClientSecret = async () => {
     try {
@@ -64,7 +65,10 @@ const StripeCardPayment = () => {
     const { paymentIntent, error } = await stripe.confirmCardPayment(
       clientSecret,
       {
-        payment_method: { card: cardElement },
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: cardholderName },
+        },
       }
     );
 
@@ -81,7 +85,19 @@ const StripeCardPayment = () => {
     <div className="max-w-md mx-auto mt-16 p-5 border rounded shadow">
       <h2 className="text-lg font-bold mb-4">Complete Payment</h2>
       <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Name on Card</label>
+          <input
+            type="text"
+            value={cardholderName}
+            onChange={(e) => setCardholderName(e.target.value)}
+            className="w-full p-2 border rounded mb-2"
+            placeholder="Cardholder Name"
+            required
+          />
+        </div>
         <div className="p-3 border rounded mb-4">
+          <label className="block mb-1 font-medium">Card Details</label>
           <CardElement />
         </div>
         <button
