@@ -14,7 +14,8 @@ const DoctorProfile = () => {
   const updateProfile = async () => {
     try {
       const updateData = {
-        address: profileData.address,
+        address_line1: profileData.address?.line1 || "",
+        address_line2: profileData.address?.line2 || "",
         fees: profileData.fees,
         available: profileData.available,
       };
@@ -55,12 +56,10 @@ const DoctorProfile = () => {
             />
           </div>
           <div className="flex-1 border border-stone-100 rounded-lg p-8 py-7 bg-white">
-            {/* Doctor Name */}
             <p className="flex items-center gap-2 text-3xl font-medium text-gray-700">
               {profileData.name}
             </p>
 
-            {/* Degree + Specialty + Experience */}
             <div className="flex items-center gap-2 mt-1 text-gray-600">
               <p>
                 {profileData.degree} - {profileData.specialty}
@@ -70,7 +69,6 @@ const DoctorProfile = () => {
               </button>
             </div>
 
-            {/* About */}
             <div>
               <p className="flex items-center gap-1 text-sm font-medium text-neutral-800 mt-3">
                 About:
@@ -80,7 +78,6 @@ const DoctorProfile = () => {
               </p>
             </div>
 
-            {/* Appointment Fee */}
             <p className="text-gray-600 font-medium mt-4">
               Appointment Fee:{" "}
               <span className="text-gray-800">
@@ -102,7 +99,6 @@ const DoctorProfile = () => {
               </span>
             </p>
 
-            {/* Address */}
             <div className="flex gap-2 py-2">
               <p>Address:</p>
               <p className="text-sm">
@@ -112,13 +108,16 @@ const DoctorProfile = () => {
                     onChange={(e) =>
                       setProfileData((prev) => ({
                         ...prev,
-                        address: { ...prev.address, line1: e.target.value },
+                        address: {
+                          ...(prev.address || { line1: "", line2: "" }),
+                          line1: e.target.value,
+                        },
                       }))
                     }
-                    value={profileData.address.line1}
+                    value={profileData.address?.line1 || ""}
                   />
                 ) : (
-                  profileData.address.line1
+                  profileData.address?.line1 || ""
                 )}
                 <br />
                 {isEdit ? (
@@ -127,18 +126,20 @@ const DoctorProfile = () => {
                     onChange={(e) =>
                       setProfileData((prev) => ({
                         ...prev,
-                        address: { ...prev.address, line2: e.target.value },
+                        address: {
+                          ...(prev.address || { line1: "", line2: "" }),
+                          line2: e.target.value,
+                        },
                       }))
                     }
-                    value={profileData.address.line2}
+                    value={profileData.address?.line2 || ""}
                   />
                 ) : (
-                  profileData.address.line2
+                  profileData.address?.line2 || ""
                 )}
               </p>
             </div>
 
-            {/* Availability */}
             <div className="flex gap-1 pt-2">
               <input
                 onChange={() =>
@@ -158,20 +159,18 @@ const DoctorProfile = () => {
             {isEdit ? (
               <button
                 onClick={updateProfile}
-                className="px-4 py-1 border border-gray-300 text-sm rounded-full mt-5 hover:bg-[#36A3CA] hover:text-white transition-all"
+                className="px-4 cursor-pointer py-1 border border-gray-300 text-sm rounded-full mt-5 hover:bg-[#36A3CA] hover:text-white transition-all"
               >
                 Save
               </button>
             ) : (
               <button
                 onClick={() => setIsEdit(true)}
-                className="px-4 py-1 border border-gray-300 text-sm rounded-full mt-5 hover:bg-[#36A3CA] hover:text-white transition-all"
+                className="px-4 cursor-pointer py-1 border border-gray-300 text-sm rounded-full mt-5 hover:bg-[#36A3CA] hover:text-white transition-all"
               >
                 Edit
               </button>
             )}
-
-            {/* Edit Button */}
           </div>
         </div>
       </div>
