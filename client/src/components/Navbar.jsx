@@ -59,7 +59,6 @@ const Navbar = ({ userType }) => {
         </NavLink>
       </ul>
       <div className="flex items-center gap-4">
-        {/* Dashboard button only if admin or doctor userType is passed */}
         {userType === "admin" && (
           <button
             onClick={() => navigate("/admin-dashboard")}
@@ -102,7 +101,6 @@ const Navbar = ({ userType }) => {
             </div>
           </div>
         ) : (
-          // Show create account only if no userType (admin or doctor) and no token
           !userType &&
           !token && (
             <button
@@ -120,7 +118,6 @@ const Navbar = ({ userType }) => {
           src={assets.menu_icon}
           alt="Menu"
         />
-        {/* ----- Mobile Menu ----- */}
         <div
           className={`${
             showMenu ? "fixed w-full" : "h-0 w-0"
@@ -148,7 +145,6 @@ const Navbar = ({ userType }) => {
             <NavLink onClick={() => setShowMenu(false)} to="/contact">
               <p className="px-4 py-2 rounded inline-block">Contact</p>
             </NavLink>
-            {/* Dashboard button in mobile menu */}
             {userType === "admin" && (
               <li>
                 <button

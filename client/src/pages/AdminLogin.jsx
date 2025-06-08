@@ -26,7 +26,7 @@ const AdminLogin = () => {
         if (data.success) {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
-          navigate("/admin-dashboard"); // ✅ Admin dashboard
+          navigate("/admin-dashboard");
         } else {
           toast.error(data.message);
         }
@@ -38,7 +38,7 @@ const AdminLogin = () => {
         if (data.success) {
           localStorage.setItem("dToken", data.token);
           setDToken(data.token);
-          navigate("/doctor-dashboard"); // ✅ Doctor dashboard
+          navigate("/doctor-dashboard");
         } else {
           toast.error(data.message);
         }

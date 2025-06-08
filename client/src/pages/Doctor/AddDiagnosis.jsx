@@ -46,8 +46,8 @@ const AddDiagnosis = () => {
   };
 
   const handleUserSelect = (e) => {
-    const userId = e.target.value;
-    const user = users.find((u) => u._id === userId);
+    const userId = Number(e.target.value);
+    const user = users.find((u) => u.id === userId);
     setSelectedUser(user);
   };
 
@@ -99,13 +99,7 @@ const AddDiagnosis = () => {
     })();
 
     const diagnosisData = {
-      _id: selectedUser._id,
-      userData: {
-        name: selectedUser.name,
-        gender: selectedUser.gender || null,
-        dob: formattedDob,
-        phone: selectedUser.phone || null,
-      },
+      user_id: selectedUser.id,
       diagnosis_title: form.diagnosisTitle,
       description: form.description,
       medications: validMedications.map((med) => ({
@@ -155,20 +149,19 @@ const AddDiagnosis = () => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Patient Selection */}
         <div className="form-group">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Patient *
           </label>
           <select
-            value={selectedUser?._id || ""}
+            value={selectedUser?.id || ""}
             onChange={handleUserSelect}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select a patient</option>
             {users.map((user) => (
-              <option key={user._id} value={user._id}>
+              <option key={user.id} value={user.id}>
                 {user.name} {user.phone && `(${user.phone})`}
               </option>
             ))}
@@ -201,7 +194,6 @@ const AddDiagnosis = () => {
           )}
         </div>
 
-        {/* Diagnosis Title */}
         <div className="form-group">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Diagnosis Title *
@@ -217,7 +209,6 @@ const AddDiagnosis = () => {
           />
         </div>
 
-        {/* Description */}
         <div className="form-group">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description *
@@ -233,7 +224,6 @@ const AddDiagnosis = () => {
           />
         </div>
 
-        {/* Medications */}
         <div className="form-group">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-medium text-gray-800">Medications *</h3>
@@ -307,7 +297,6 @@ const AddDiagnosis = () => {
           ))}
         </div>
 
-        {/* Future Checkup */}
         <div className="form-group">
           <h3 className="text-lg font-medium text-gray-800 mb-2">
             Future Checkup
@@ -353,12 +342,11 @@ const AddDiagnosis = () => {
           </div>
         </div>
 
-        {/* Submit Button */}
         <div className="pt-4">
           <button
             type="submit"
             disabled={loading}
-            className={`w-full px-4 py-2 text-white rounded-md ${
+            className={`w-full px-4 py-2 cursor-pointer text-white rounded-md ${
               loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
             } transition flex justify-center items-center`}
           >

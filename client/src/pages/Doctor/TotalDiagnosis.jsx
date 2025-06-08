@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DiagnosisContext } from "../../context/diagnosisContext";
 import { assets } from "../../assets/assets";
+import { DiagnosisContext } from "../../context/DiagnosisContext";
 
 const TotalDiagnosis = () => {
   const {
@@ -14,7 +14,7 @@ const TotalDiagnosis = () => {
   const [editingId, setEditingId] = useState(null);
   const [medicationsEdit, setMedicationsEdit] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [diagnosesPerPage] = useState(5); // Items per page
+  const [diagnosesPerPage] = useState(5);
 
   useEffect(() => {
     if (dToken) {
@@ -22,7 +22,6 @@ const TotalDiagnosis = () => {
     }
   }, [dToken]);
 
-  // Get current diagnoses for pagination
   const indexOfLastDiagnosis = currentPage * diagnosesPerPage;
   const indexOfFirstDiagnosis = indexOfLastDiagnosis - diagnosesPerPage;
   const currentDiagnoses = diagnosisList.slice(
@@ -30,7 +29,6 @@ const TotalDiagnosis = () => {
     indexOfLastDiagnosis
   );
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const startEdit = (diagnosis) => {
