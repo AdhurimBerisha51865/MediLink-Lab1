@@ -99,7 +99,9 @@ const Dashboard = () => {
                     {item.docData.name}
                   </p>
                   <p className="text-gray-600">
-                    {slotDateFormat(item.slotDate)}
+                    <p className="text-gray-600">
+                      {slotDateFormat(item.slotDate)}, {item.slotTime}
+                    </p>
                   </p>
                 </div>
                 {item.cancelled ? (
@@ -128,7 +130,7 @@ const Dashboard = () => {
                     <li>
                       <button
                         onClick={() => paginate(currentPage - 1)}
-                        className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                        className="px-3 cursor-pointer py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
                       >
                         Previous
                       </button>
@@ -143,7 +145,7 @@ const Dashboard = () => {
                     <li key={index}>
                       <button
                         onClick={() => paginate(index + 1)}
-                        className={`px-3 py-1 rounded-md border ${
+                        className={`px-3 py-1 cursor-pointer rounded-md border ${
                           currentPage === index + 1
                             ? "border-blue-500 bg-blue-50 text-blue-600"
                             : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
@@ -161,7 +163,7 @@ const Dashboard = () => {
                     <li>
                       <button
                         onClick={() => paginate(currentPage + 1)}
-                        className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                        className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 cursor-pointer"
                       >
                         Next
                       </button>
