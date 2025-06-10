@@ -151,7 +151,7 @@ const appointmentsAdmin = async (req, res) => {
 
 const deleteDoctor = async (req, res) => {
   try {
-    const { docId } = req.body;
+    const { docId } = req.params;
     if (!docId)
       return res.json({ success: false, message: "Doctor ID required" });
     await pool.execute("DELETE FROM doctors WHERE id = ?", [docId]);

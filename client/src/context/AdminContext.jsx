@@ -143,9 +143,8 @@ const AdminContextProvider = ({ children }) => {
 
   const deleteDoctor = async (docId) => {
     try {
-      const { data } = await axios.post(
-        backendUrl + "/api/admin/delete-doctor",
-        { docId },
+      const { data } = await axios.delete(
+        backendUrl + `/api/admin/delete-doctor/${docId}`,
         { headers: { aToken } }
       );
       if (data.success) {

@@ -25,6 +25,6 @@ adminRouter.put("/cancel-appointment", authAdmin, appointmentCancel);
 adminRouter.get("/dashboard", authAdmin, adminDashboard);
 adminRouter.post("/complete-appointment", authAdmin, appointmentCompleteAdmin);
 adminRouter.get("/get-diagnosis", authAdmin, getAllDiagnoses);
-adminRouter.post("/delete-doctor", authAdmin, deleteDoctor);
+adminRouter.delete("/delete-doctor/:docId", authAdmin, deleteDoctor);
 
 export default adminRouter;
