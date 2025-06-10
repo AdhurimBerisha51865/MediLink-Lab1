@@ -3,7 +3,7 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { assets } from "../../assets/assets";
 import { AppContext } from "../../context/AppContext";
 import { AdminAppContext } from "../../context/AdminAppContext";
-import { DiagnosisContext } from "../../context/DiagnosisContext";
+import { DiagnosisContext } from "../../context/diagnosisContext";
 
 const DoctorDashboard = () => {
   const {
