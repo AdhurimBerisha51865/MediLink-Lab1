@@ -27,7 +27,7 @@ MediLink is a full-stack web platform designed to streamline doctor appointments
 
 1. Clone the repository  
     ```bash
-    git clone https://github.com/AdhurimBerisha51865/MediLink-Lende-Laboratorike-2-.git
+    git clone git@github.com:AdhurimBerisha51865/MediLink-Lab1.git
     ```
 
 2. Install dependencies for frontend and backend  
